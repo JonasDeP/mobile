@@ -1,0 +1,3 @@
+vrage bij mobile
+
+1. leg uit waarom als je iets aanpast in een textfield dit direct getoond word als je typt      (constant rerenderen)
