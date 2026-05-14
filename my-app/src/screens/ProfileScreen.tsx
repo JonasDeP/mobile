@@ -38,7 +38,7 @@ const ProfileScreen: React.FC = () => {
           </View>
           <Switch
             value={theme === 'dark'}
-            onValueChange={() => dispatch(toggleTheme())}
+            onValueChange={() => { dispatch(toggleTheme()); }}
             trackColor={{ false: colors.border, true: colors.primary }}
             thumbColor={colors.white}
           />
