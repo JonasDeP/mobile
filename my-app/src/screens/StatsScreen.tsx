@@ -1,13 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, FlatList, StyleSheet } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../constants/theme';
+import { View, Text, FlatList } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import CustomHeader from '../components/CustomHeader';
 import { WorkoutHistoryEntry } from '../types';
 import { getWorkoutHistory } from '../services/firestore';
 import { useAuth } from '../hooks/useAuth';
+import { spacing, borderRadius, typography } from '../constants/theme';
 
 const StatsScreen: React.FC = () => {
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [history, setHistory] = useState<WorkoutHistoryEntry[]>([]);
 
   useEffect(() => {
@@ -29,101 +31,38 @@ const StatsScreen: React.FC = () => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <CustomHeader title="Statistieken" />
-      <View style={styles.summary}>
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryValue}>{history.length}</Text>
-          <Text style={styles.summaryLabel}>Totale Workouts</Text>
+      <View style={{ flexDirection: 'row', padding: spacing.md, gap: spacing.md }}>
+        <View style={{ flex: 1, backgroundColor: colors.primary, borderRadius: borderRadius.lg, padding: spacing.md, alignItems: 'center' }}>
+          <Text style={{ ...typography.h1, color: colors.white }}>{history.length}</Text>
+          <Text style={{ ...typography.caption, color: colors.white, marginTop: spacing.xs }}>Totale Workouts</Text>
         </View>
-        <View style={styles.summaryCard}>
-          <Text style={styles.summaryValue}>{history.reduce((sum, h) => sum + h.exercises.length, 0)}</Text>
-          <Text style={styles.summaryLabel}>Totale Oefeningen</Text>
+        <View style={{ flex: 1, backgroundColor: colors.primary, borderRadius: borderRadius.lg, padding: spacing.md, alignItems: 'center' }}>
+          <Text style={{ ...typography.h1, color: colors.white }}>{history.reduce((sum, h) => sum + h.exercises.length, 0)}</Text>
+          <Text style={{ ...typography.caption, color: colors.white, marginTop: spacing.xs }}>Totale Oefeningen</Text>
         </View>
       </View>
-      <Text style={styles.sectionTitle}>Recente Workouts</Text>
+      <Text style={{ ...typography.h3, color: colors.text, paddingHorizontal: spacing.md, marginBottom: spacing.sm }}>Recente Workouts</Text>
       <FlatList
         data={history}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
-          <View style={styles.historyCard}>
-            <Text style={styles.historyTitle}>{item.workoutTitle}</Text>
-            <Text style={styles.historyDate}>{formatDate(item.completedAt)}</Text>
-            <Text style={styles.historyDetail}>{item.exercises.length} oefeningen</Text>
+          <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
+            <Text style={{ ...typography.h3, color: colors.text }}>{item.workoutTitle}</Text>
+            <Text style={{ ...typography.caption, color: colors.textSecondary, marginTop: spacing.xs }}>{formatDate(item.completedAt)}</Text>
+            <Text style={{ ...typography.caption, color: colors.textSecondary }}>{item.exercises.length} oefeningen</Text>
           </View>
         )}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ padding: spacing.md }}
         ListEmptyComponent={
-          <View style={styles.empty}>
-            <Text style={styles.emptyText}>Nog geen workouts gelogd</Text>
+          <View style={{ padding: spacing.xl, alignItems: 'center' }}>
+            <Text style={{ color: colors.textSecondary }}>Nog geen workouts gelogd</Text>
           </View>
         }
       />
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  summary: {
-    flexDirection: 'row',
-    padding: spacing.md,
-    gap: spacing.md,
-  },
-  summaryCard: {
-    flex: 1,
-    backgroundColor: colors.primary,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    alignItems: 'center',
-  },
-  summaryValue: {
-    ...typography.h1,
-    color: colors.white,
-  },
-  summaryLabel: {
-    ...typography.caption,
-    color: colors.white,
-    marginTop: spacing.xs,
-  },
-  sectionTitle: {
-    ...typography.h3,
-    color: colors.text,
-    paddingHorizontal: spacing.md,
-    marginBottom: spacing.sm,
-  },
-  list: {
-    padding: spacing.md,
-  },
-  historyCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  historyTitle: {
-    ...typography.h3,
-    color: colors.text,
-  },
-  historyDate: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginTop: spacing.xs,
-  },
-  historyDetail: {
-    ...typography.caption,
-    color: colors.textSecondary,
-  },
-  empty: {
-    padding: spacing.xl,
-    alignItems: 'center',
-  },
-  emptyText: {
-    color: colors.textSecondary,
-  },
-});
 
 export default StatsScreen;

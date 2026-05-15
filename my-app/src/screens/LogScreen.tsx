@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
-import { colors, spacing } from '../constants/theme';
+import { View, Text, ScrollView, Alert } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import CustomHeader from '../components/CustomHeader';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
@@ -8,6 +8,7 @@ import SaveModal from '../components/SaveModal';
 import { LogFormData, ValidationErrors } from '../types';
 import { addToHistory } from '../services/firestore';
 import { useAuth } from '../hooks/useAuth';
+import { spacing } from '../constants/theme';
 
 interface Props {
   route: any;
@@ -15,8 +16,9 @@ interface Props {
 }
 
 const LogScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { exercise } = route.params;
+  const { exercise } = route.params as { exercise: { id: string; name: string } };
   const { user } = useAuth();
+  const { colors } = useTheme();
   const [form, setForm] = useState<LogFormData>({ sets: '', reps: '', weight: '', restTime: '' });
   const [errors, setErrors] = useState<ValidationErrors>({});
   const [saveModalVisible, setSaveModalVisible] = useState(false);
@@ -63,14 +65,14 @@ const LogScreen: React.FC<Props> = ({ route, navigation }) => {
   };
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <CustomHeader
         title="Log Workout"
-        leftIcon={<Text style={styles.backIcon}>←</Text>}
+        leftIcon={<Text style={{ fontSize: 24, color: colors.white }}>←</Text>}
         onLeftPress={() => navigation.goBack()}
       />
-      <ScrollView contentContainerStyle={styles.content}>
-        <Text style={styles.exerciseName}>{exercise.name}</Text>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg }}>
+        <Text style={{ fontSize: 20, fontWeight: '600', color: colors.text, marginBottom: spacing.lg, textAlign: 'center' }}>{exercise.name}</Text>
         <InputField
           label="Sets"
           value={form.sets}
@@ -99,7 +101,7 @@ const LogScreen: React.FC<Props> = ({ route, navigation }) => {
           error={errors.restTime}
           keyboardType="number-pad"
         />
-        <Button title="Opslaan" onPress={handleSave} style={styles.saveBtn} />
+        <Button title="Opslaan" onPress={handleSave} style={{ marginTop: spacing.lg }} />
       </ScrollView>
       <SaveModal
         visible={saveModalVisible}
@@ -119,29 +121,5 @@ const LogScreen: React.FC<Props> = ({ route, navigation }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: spacing.lg,
-  },
-  backIcon: {
-    fontSize: 24,
-    color: colors.white,
-  },
-  exerciseName: {
-    fontSize: 20,
-    fontWeight: '600',
-    color: colors.text,
-    marginBottom: spacing.lg,
-    textAlign: 'center',
-  },
-  saveBtn: {
-    marginTop: spacing.lg,
-  },
-});
 
 export default LogScreen;

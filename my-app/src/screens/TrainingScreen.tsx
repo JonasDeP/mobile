@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, StyleSheet, TouchableOpacity } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../constants/theme';
+import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import CustomHeader from '../components/CustomHeader';
 import FilterModal from '../components/FilterModal';
 import { FilterState } from '../types';
+import { spacing, borderRadius, typography } from '../constants/theme';
 
 const MOCK_EXERCISES = [
   { id: '1', name: 'Bankdrukken', muscleGroup: 'Borst', difficulty: 'Gevorderd' },
@@ -18,6 +19,7 @@ interface Props {
 }
 
 const TrainingScreen: React.FC<Props> = ({ navigation }) => {
+  const { colors } = useTheme();
   const [filterVisible, setFilterVisible] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ muscleGroup: 'Alles', difficulty: 'Alles' });
 
@@ -28,10 +30,10 @@ const TrainingScreen: React.FC<Props> = ({ navigation }) => {
   });
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <CustomHeader
         title="Training"
-        rightIcon={<Text style={styles.filterIcon}>⚙</Text>}
+        rightIcon={<Text style={{ fontSize: 20, color: colors.white }}>⚙</Text>}
         onRightPress={() => setFilterVisible(true)}
       />
       <FlatList
@@ -39,21 +41,21 @@ const TrainingScreen: React.FC<Props> = ({ navigation }) => {
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={styles.exerciseCard}
+            style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}
             onPress={() => navigation.navigate('ExerciseDetail', { exercise: item })}
           >
-            <Text style={styles.exerciseName}>{item.name}</Text>
-            <View style={styles.tags}>
-              <View style={styles.tag}>
-                <Text style={styles.tagText}>{item.muscleGroup}</Text>
+            <Text style={{ ...typography.h3, color: colors.text, marginBottom: spacing.sm }}>{item.name}</Text>
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              <View style={{ backgroundColor: colors.primaryLight, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: borderRadius.round }}>
+                <Text style={{ ...typography.small, color: colors.primaryDark }}>{item.muscleGroup}</Text>
               </View>
-              <View style={styles.tag}>
-                <Text style={styles.tagText}>{item.difficulty}</Text>
+              <View style={{ backgroundColor: colors.primaryLight, paddingHorizontal: spacing.sm, paddingVertical: spacing.xs, borderRadius: borderRadius.round }}>
+                <Text style={{ ...typography.small, color: colors.primaryDark }}>{item.difficulty}</Text>
               </View>
             </View>
           </TouchableOpacity>
         )}
-        contentContainerStyle={styles.list}
+        contentContainerStyle={{ padding: spacing.md }}
       />
       <FilterModal
         visible={filterVisible}
@@ -63,44 +65,5 @@ const TrainingScreen: React.FC<Props> = ({ navigation }) => {
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  list: {
-    padding: spacing.md,
-  },
-  filterIcon: {
-    fontSize: 20,
-    color: colors.white,
-  },
-  exerciseCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  exerciseName: {
-    ...typography.h3,
-    color: colors.text,
-    marginBottom: spacing.sm,
-  },
-  tags: {
-    flexDirection: 'row',
-    gap: spacing.sm,
-  },
-  tag: {
-    backgroundColor: colors.primaryLight,
-    paddingHorizontal: spacing.sm,
-    paddingVertical: spacing.xs,
-    borderRadius: borderRadius.round,
-  },
-  tagText: {
-    ...typography.small,
-    color: colors.primaryDark,
-  },
-});
 
 export default TrainingScreen;

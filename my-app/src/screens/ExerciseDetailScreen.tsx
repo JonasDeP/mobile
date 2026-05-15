@@ -1,8 +1,9 @@
 import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../constants/theme';
+import { View, Text, ScrollView } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
 import CustomHeader from '../components/CustomHeader';
 import Button from '../components/Button';
+import { spacing, borderRadius, typography } from '../constants/theme';
 
 interface Props {
   route: any;
@@ -10,27 +11,28 @@ interface Props {
 }
 
 const ExerciseDetailScreen: React.FC<Props> = ({ route, navigation }) => {
+  const { colors } = useTheme();
   const { exercise } = route.params;
 
   return (
-    <View style={styles.container}>
+    <View style={{ flex: 1, backgroundColor: colors.background }}>
       <CustomHeader
         title={exercise.name}
-        leftIcon={<Text style={styles.backIcon}>←</Text>}
+        leftIcon={<Text style={{ fontSize: 24, color: colors.white }}>←</Text>}
         onLeftPress={() => navigation.goBack()}
       />
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.infoCard}>
-          <Text style={styles.label}>Spiergroep</Text>
-          <Text style={styles.value}>{exercise.muscleGroup}</Text>
+      <ScrollView contentContainerStyle={{ padding: spacing.lg }}>
+        <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
+          <Text style={{ ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase' }}>Spiergroep</Text>
+          <Text style={{ ...typography.h3, color: colors.text }}>{exercise.muscleGroup}</Text>
         </View>
-        <View style={styles.infoCard}>
-          <Text style={styles.label}>Moeilijkheid</Text>
-          <Text style={styles.value}>{exercise.difficulty}</Text>
+        <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
+          <Text style={{ ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase' }}>Moeilijkheid</Text>
+          <Text style={{ ...typography.h3, color: colors.text }}>{exercise.difficulty}</Text>
         </View>
-        <View style={styles.infoCard}>
-          <Text style={styles.label}>Beschrijving</Text>
-          <Text style={styles.description}>
+        <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
+          <Text style={{ ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase' }}>Beschrijving</Text>
+          <Text style={{ ...typography.body, color: colors.text, lineHeight: 22 }}>
             Dit is een effectieve oefening voor het trainen van {exercise.muscleGroup.toLowerCase()}.
             Zorg voor een goede vorm en controleer je bewegingen.
           </Text>
@@ -38,49 +40,11 @@ const ExerciseDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         <Button
           title="Log Workout"
           onPress={() => navigation.navigate('Log', { exercise })}
-          style={styles.logBtn}
+          style={{ marginTop: spacing.lg }}
         />
       </ScrollView>
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: colors.background,
-  },
-  content: {
-    padding: spacing.lg,
-  },
-  backIcon: {
-    fontSize: 24,
-    color: colors.white,
-  },
-  infoCard: {
-    backgroundColor: colors.surface,
-    borderRadius: borderRadius.lg,
-    padding: spacing.md,
-    marginBottom: spacing.md,
-  },
-  label: {
-    ...typography.caption,
-    color: colors.textSecondary,
-    marginBottom: spacing.xs,
-    textTransform: 'uppercase',
-  },
-  value: {
-    ...typography.h3,
-    color: colors.text,
-  },
-  description: {
-    ...typography.body,
-    color: colors.text,
-    lineHeight: 22,
-  },
-  logBtn: {
-    marginTop: spacing.lg,
-  },
-});
 
 export default ExerciseDetailScreen;

@@ -1,6 +1,7 @@
 import React from 'react';
-import { TouchableOpacity, Text, StyleSheet, ViewStyle, TextStyle } from 'react-native';
-import { colors, spacing, borderRadius, typography } from '../constants/theme';
+import { TouchableOpacity, Text, ViewStyle } from 'react-native';
+import { useTheme } from '../context/ThemeContext';
+import { spacing, borderRadius, typography } from '../constants/theme';
 
 interface Props {
   title: string;
@@ -17,18 +18,26 @@ const Button: React.FC<Props> = ({
   disabled = false,
   style,
 }) => {
-  const containerStyle: ViewStyle[] = [
-    styles.base,
-    variant === 'primary' ? styles.primary : styles.secondary,
-    disabled ? styles.disabled : {},
-    ...(style ? [style] : []),
-  ];
+  const { colors } = useTheme();
 
-  const textStyle: TextStyle[] = [
-    styles.text,
-    variant === 'primary' ? styles.primaryText : styles.secondaryText,
-    disabled ? styles.disabledText : {},
-  ];
+  const containerStyle: ViewStyle = {
+    paddingVertical: spacing.md,
+    paddingHorizontal: spacing.lg,
+    borderRadius: borderRadius.md,
+    alignItems: 'center',
+    justifyContent: 'center',
+    opacity: disabled ? 0.5 : 1,
+    ...(variant === 'primary'
+      ? { backgroundColor: colors.primary }
+      : { backgroundColor: 'transparent', borderWidth: 2, borderColor: colors.primary }),
+    ...(style as ViewStyle),
+  };
+
+  const textColor = disabled
+    ? colors.textSecondary
+    : variant === 'primary'
+    ? colors.white
+    : colors.primary;
 
   return (
     <TouchableOpacity
@@ -37,43 +46,9 @@ const Button: React.FC<Props> = ({
       disabled={disabled}
       activeOpacity={0.8}
     >
-      <Text style={textStyle}>{title}</Text>
+      <Text style={{ ...typography.body, fontWeight: '600', color: textColor }}>{title}</Text>
     </TouchableOpacity>
   );
 };
-
-const styles = StyleSheet.create({
-  base: {
-    paddingVertical: spacing.md,
-    paddingHorizontal: spacing.lg,
-    borderRadius: borderRadius.md,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  primary: {
-    backgroundColor: colors.primary,
-  },
-  secondary: {
-    backgroundColor: 'transparent',
-    borderWidth: 2,
-    borderColor: colors.primary,
-  },
-  disabled: {
-    opacity: 0.5,
-  },
-  text: {
-    ...typography.body,
-    fontWeight: '600',
-  },
-  primaryText: {
-    color: colors.white,
-  },
-  secondaryText: {
-    color: colors.primary,
-  },
-  disabledText: {
-    color: colors.textSecondary,
-  },
-});
 
 export default Button;
