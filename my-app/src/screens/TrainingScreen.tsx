@@ -1,18 +1,11 @@
 import React, { useState } from 'react';
-import { View, Text, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, FlatList, TouchableOpacity, TextInput } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import CustomHeader from '../components/CustomHeader';
 import FilterModal from '../components/FilterModal';
 import { FilterState } from '../types';
+import { EXERCISES, MUSCLE_GROUPS } from '../data/exercises';
 import { spacing, borderRadius, typography } from '../constants/theme';
-
-const MOCK_EXERCISES = [
-  { id: '1', name: 'Bankdrukken', muscleGroup: 'Borst', difficulty: 'Gevorderd' },
-  { id: '2', name: 'Squats', muscleGroup: 'Benen', difficulty: 'Beginner' },
-  { id: '3', name: 'Deadlift', muscleGroup: 'Rug', difficulty: 'Expert' },
-  { id: '4', name: 'Shoulder Press', muscleGroup: 'Schouders', difficulty: 'Gevorderd' },
-  { id: '5', name: 'Bicep Curls', muscleGroup: 'Armen', difficulty: 'Beginner' },
-];
 
 interface Props {
   navigation: any;
@@ -22,10 +15,12 @@ const TrainingScreen: React.FC<Props> = ({ navigation }) => {
   const { colors } = useTheme();
   const [filterVisible, setFilterVisible] = useState(false);
   const [filters, setFilters] = useState<FilterState>({ muscleGroup: 'Alles', difficulty: 'Alles' });
+  const [search, setSearch] = useState('');
 
-  const filteredExercises = MOCK_EXERCISES.filter((ex) => {
+  const filteredExercises = EXERCISES.filter((ex) => {
     if (filters.muscleGroup !== 'Alles' && ex.muscleGroup !== filters.muscleGroup) return false;
     if (filters.difficulty !== 'Alles' && ex.difficulty !== filters.difficulty) return false;
+    if (search && !ex.name.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
 
@@ -36,12 +31,58 @@ const TrainingScreen: React.FC<Props> = ({ navigation }) => {
         rightIcon={<Text style={{ fontSize: 20, color: colors.white }}>⚙</Text>}
         onRightPress={() => setFilterVisible(true)}
       />
+
+      {/* Search bar */}
+      <View style={{ paddingHorizontal: spacing.md, paddingVertical: spacing.sm }}>
+        <TextInput
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Zoek oefening..."
+          placeholderTextColor={colors.textSecondary}
+          style={{
+            backgroundColor: colors.surface,
+            borderRadius: borderRadius.md,
+            paddingHorizontal: spacing.md,
+            paddingVertical: spacing.sm,
+            color: colors.text,
+            borderWidth: 1,
+            borderColor: colors.border,
+          }}
+        />
+      </View>
+
+      {/* Muscle group filter chips */}
+      <View style={{ paddingHorizontal: spacing.md, marginBottom: spacing.sm }}>
+        <FlatList
+          horizontal
+          data={MUSCLE_GROUPS}
+          keyExtractor={(item) => item}
+          showsHorizontalScrollIndicator={false}
+          renderItem={({ item }) => (
+            <TouchableOpacity
+              onPress={() => setFilters((f) => ({ ...f, muscleGroup: item }))}
+              style={{
+                paddingHorizontal: spacing.md,
+                paddingVertical: spacing.xs,
+                borderRadius: borderRadius.round,
+                marginRight: spacing.xs,
+                backgroundColor: filters.muscleGroup === item ? colors.primary : colors.surface,
+              }}
+            >
+              <Text style={{ color: filters.muscleGroup === item ? colors.white : colors.text, fontSize: 13 }}>
+                {item}
+              </Text>
+            </TouchableOpacity>
+          )}
+        />
+      </View>
+
       <FlatList
         data={filteredExercises}
         keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <TouchableOpacity
-            style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}
+            style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md, marginHorizontal: spacing.md }}
             onPress={() => navigation.navigate('ExerciseDetail', { exercise: item })}
           >
             <Text style={{ ...typography.h3, color: colors.text, marginBottom: spacing.sm }}>{item.name}</Text>
@@ -55,7 +96,7 @@ const TrainingScreen: React.FC<Props> = ({ navigation }) => {
             </View>
           </TouchableOpacity>
         )}
-        contentContainerStyle={{ padding: spacing.md }}
+        contentContainerStyle={{ paddingBottom: spacing.xl }}
       />
       <FilterModal
         visible={filterVisible}

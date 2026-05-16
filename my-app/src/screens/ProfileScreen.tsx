@@ -1,18 +1,20 @@
 import React from 'react';
 import { View, Text, Switch, Alert } from 'react-native';
-import { useDispatch } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '../context/ThemeContext';
 import CustomHeader from '../components/CustomHeader';
 import Button from '../components/Button';
 import { toggleTheme } from '../store/themeSlice';
 import { signOut } from '../services/auth';
 import { useAuth } from '../hooks/useAuth';
+import { RootState } from '../store';
 import { spacing, borderRadius, typography } from '../constants/theme';
 
 const ProfileScreen: React.FC = () => {
   const { user } = useAuth();
   const { colors } = useTheme();
   const dispatch = useDispatch();
+  const isDark = useSelector((state: RootState) => state.theme.mode === 'dark');
 
   const handleLogout = async () => {
     try {
@@ -37,7 +39,7 @@ const ProfileScreen: React.FC = () => {
             <Text style={{ ...typography.caption, color: colors.textSecondary, marginTop: spacing.xs }}>Schakel tussen licht en donker thema</Text>
           </View>
           <Switch
-            value={false}
+            value={isDark}
             onValueChange={() => { dispatch(toggleTheme()); }}
             trackColor={{ false: colors.border, true: colors.primary }}
             thumbColor={colors.white}

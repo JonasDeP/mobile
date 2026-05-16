@@ -19,24 +19,13 @@ const AuthNavigator: React.FC = () => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let unsubscribe: (() => void) | undefined;
+    const unsubscribe = onAuthStateChanged((authUser) => {
+      setUser(authUser);
+      setLoading(false);
+      SplashScreen.hideAsync();
+    });
 
-    const init = async () => {
-      try {
-        unsubscribe = onAuthStateChanged((authUser) => {
-          setUser(authUser);
-          setLoading(false);
-          SplashScreen.hideAsync();
-        });
-      } catch (error) {
-        console.error('Firebase auth init error:', error);
-        setLoading(false);
-        SplashScreen.hideAsync();
-      }
-    };
-
-    init();
-    return () => { unsubscribe?.(); };
+    return unsubscribe;
   }, []);
 
   if (loading) {

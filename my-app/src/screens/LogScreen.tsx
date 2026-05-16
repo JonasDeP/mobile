@@ -5,32 +5,65 @@ import CustomHeader from '../components/CustomHeader';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
 import SaveModal from '../components/SaveModal';
-import { LogFormData, ValidationErrors } from '../types';
+import { ValidationErrors } from '../types';
 import { addToHistory } from '../services/firestore';
 import { useAuth } from '../hooks/useAuth';
-import { spacing } from '../constants/theme';
+import { spacing, borderRadius } from '../constants/theme';
 
 interface Props {
   route: any;
   navigation: any;
 }
 
+interface LogEntry {
+  name: string;
+  sets: string;
+  reps: string;
+  weight: string;
+  restTime: string;
+}
+
 const LogScreen: React.FC<Props> = ({ route, navigation }) => {
-  const { exercise } = route.params as { exercise: { id: string; name: string } };
-  const { user } = useAuth();
   const { colors } = useTheme();
-  const [form, setForm] = useState<LogFormData>({ sets: '', reps: '', weight: '', restTime: '' });
-  const [errors, setErrors] = useState<ValidationErrors>({});
+  const { user } = useAuth();
+  const params = route.params as any;
+
+  // Support both single exercise (from TrainingScreen) and full workout (from HomeScreen)
+  const isWorkout = !!(params.workout && params.workout.exercises);
+
+  const workoutTitle = isWorkout ? params.workout.title : params.exercise?.name || 'Workout';
+  const exercises = isWorkout ? params.workout.exercises : [params.exercise];
+
+  const [logs, setLogs] = useState<Record<number, LogEntry>>(
+    Object.fromEntries(exercises.map((ex: any, i: number) => [i, {
+      name: ex.name || '',
+      sets: String(ex.sets ?? ''),
+      reps: String(ex.reps ?? ''),
+      weight: ex.weight ? String(ex.weight) : '',
+      restTime: String(ex.restTime ?? ''),
+    }]))
+  );
+  const [errors, setErrors] = useState<Record<number, ValidationErrors>>({});
   const [saveModalVisible, setSaveModalVisible] = useState(false);
 
+  const updateLog = (index: number, field: keyof LogEntry, value: string) => {
+    setLogs((prev) => ({ ...prev, [index]: { ...prev[index], [field]: value } }));
+  };
+
   const validate = (): boolean => {
-    const newErrors: ValidationErrors = {};
-    if (!form.sets || parseInt(form.sets) <= 0) newErrors.sets = 'Sets moet positief zijn';
-    if (!form.reps || parseInt(form.reps) <= 0) newErrors.reps = 'Reps moet positief zijn';
-    if (!form.weight || parseFloat(form.weight) <= 0) newErrors.weight = 'Gewicht moet positief zijn';
-    if (!form.restTime || parseInt(form.restTime) < 0) newErrors.restTime = 'Rusttijd moet 0 of meer zijn';
+    const newErrors: Record<number, ValidationErrors> = {};
+    let valid = true;
+    exercises.forEach((_: any, i: number) => {
+      const l = logs[i];
+      const e: ValidationErrors = {};
+      if (!l.sets || parseInt(l.sets) <= 0) { e.sets = 'Moet positief zijn'; valid = false; }
+      if (!l.reps || parseInt(l.reps) <= 0) { e.reps = 'Moet positief zijn'; valid = false; }
+      if (!l.weight || parseFloat(l.weight) < 0) { e.weight = 'Ongeldig'; valid = false; }
+      if (!l.restTime || parseInt(l.restTime) < 0) { e.restTime = 'Ongeldig'; valid = false; }
+      if (Object.keys(e).length > 0) newErrors[i] = e;
+    });
     setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
+    return valid;
   };
 
   const handleSave = () => {
@@ -41,24 +74,32 @@ const LogScreen: React.FC<Props> = ({ route, navigation }) => {
   const confirmSave = async () => {
     if (!user) return;
     try {
+      const historyExercises = exercises.map((ex: any, i: number) => {
+        const l = logs[i];
+        return {
+          name: ex.name,
+          sets: parseInt(l.sets) || 0,
+          reps: parseInt(l.reps) || 0,
+          weight: parseFloat(l.weight) || 0,
+          restTime: parseInt(l.restTime) || 0,
+        };
+      });
       await addToHistory(user.uid, {
-        id: '',
-        workoutId: exercise.id,
-        workoutTitle: exercise.name,
+        workoutId: isWorkout ? params.workout.id : params.exercise?.id || '',
+        workoutTitle,
         completedAt: new Date().toISOString(),
-        exercises: [
-          {
-            name: exercise.name,
-            sets: parseInt(form.sets),
-            reps: parseInt(form.reps),
-            weight: parseFloat(form.weight),
-            restTime: parseInt(form.restTime),
-          },
-        ],
+        exercises: historyExercises,
       });
       setSaveModalVisible(false);
-      Alert.alert('Opgeslagen!', 'Je workout is opgeslagen.');
-      navigation.goBack();
+      Alert.alert('Opgeslagen!', 'Je workout is opgeslagen.', [
+        {
+          text: 'OK',
+          onPress: () => {
+            navigation.popToTop();
+            navigation.getParent()?.navigate('Home');
+          },
+        },
+      ]);
     } catch (error) {
       Alert.alert('Fout', 'Kon workout niet opslaan');
     }
@@ -67,54 +108,89 @@ const LogScreen: React.FC<Props> = ({ route, navigation }) => {
   return (
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <CustomHeader
-        title="Log Workout"
-        leftIcon={<Text style={{ fontSize: 24, color: colors.white }}>←</Text>}
-        onLeftPress={() => navigation.goBack()}
+        title={isWorkout ? 'Workout Loggen' : 'Log Oefening'}
+        showBack
+        onBack={() => navigation.navigate('Home')}
       />
       <ScrollView contentContainerStyle={{ padding: spacing.lg }}>
-        <Text style={{ fontSize: 20, fontWeight: '600', color: colors.text, marginBottom: spacing.lg, textAlign: 'center' }}>{exercise.name}</Text>
-        <InputField
-          label="Sets"
-          value={form.sets}
-          onChangeText={(text) => setForm({ ...form, sets: text })}
-          error={errors.sets}
-          keyboardType="number-pad"
-        />
-        <InputField
-          label="Reps"
-          value={form.reps}
-          onChangeText={(text) => setForm({ ...form, reps: text })}
-          error={errors.reps}
-          keyboardType="number-pad"
-        />
-        <InputField
-          label="Gewicht (kg)"
-          value={form.weight}
-          onChangeText={(text) => setForm({ ...form, weight: text })}
-          error={errors.weight}
-          keyboardType="decimal-pad"
-        />
-        <InputField
-          label="Rusttijd (seconden)"
-          value={form.restTime}
-          onChangeText={(text) => setForm({ ...form, restTime: text })}
-          error={errors.restTime}
-          keyboardType="number-pad"
-        />
-        <Button title="Opslaan" onPress={handleSave} style={{ marginTop: spacing.lg }} />
+        <Text style={{ fontSize: 20, fontWeight: '700', color: colors.text, marginBottom: spacing.lg, textAlign: 'center' }}>
+          {workoutTitle}
+        </Text>
+
+        {exercises.map((ex: any, i: number) => (
+          <View
+            key={ex.id || i}
+            style={{
+              backgroundColor: colors.surface,
+              borderRadius: borderRadius.lg,
+              padding: spacing.md,
+              marginBottom: spacing.md,
+              borderWidth: 1,
+              borderColor: colors.border,
+            }}
+          >
+            <Text style={{ fontSize: 16, fontWeight: '600', color: colors.text, marginBottom: spacing.sm }}>
+              {ex.name}
+            </Text>
+            <View style={{ flexDirection: 'row', gap: spacing.sm }}>
+              <View style={{ flex: 1 }}>
+                <InputField
+                  label="Sets"
+                  value={logs[i]?.sets || ''}
+                  onChangeText={(v) => updateLog(i, 'sets', v)}
+                  error={errors[i]?.sets}
+                  keyboardType="number-pad"
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <InputField
+                  label="Reps"
+                  value={logs[i]?.reps || ''}
+                  onChangeText={(v) => updateLog(i, 'reps', v)}
+                  error={errors[i]?.reps}
+                  keyboardType="number-pad"
+                />
+              </View>
+            </View>
+            <View style={{ flexDirection: 'row', gap: spacing.sm, marginTop: spacing.sm }}>
+              <View style={{ flex: 1 }}>
+                <InputField
+                  label="Gewicht (kg)"
+                  value={logs[i]?.weight || ''}
+                  onChangeText={(v) => updateLog(i, 'weight', v)}
+                  error={errors[i]?.weight}
+                  keyboardType="decimal-pad"
+                />
+              </View>
+              <View style={{ flex: 1 }}>
+                <InputField
+                  label="Rust (sec)"
+                  value={logs[i]?.restTime || ''}
+                  onChangeText={(v) => updateLog(i, 'restTime', v)}
+                  error={errors[i]?.restTime}
+                  keyboardType="number-pad"
+                />
+              </View>
+            </View>
+          </View>
+        ))}
+
+        <Button title="Opslaan" onPress={handleSave} style={{ marginTop: spacing.sm }} />
       </ScrollView>
+
       <SaveModal
         visible={saveModalVisible}
-        workoutTitle={exercise.name}
-        exercises={[
-          {
-            name: exercise.name,
-            sets: parseInt(form.sets) || 0,
-            reps: parseInt(form.reps) || 0,
-            weight: parseFloat(form.weight) || 0,
-            restTime: parseInt(form.restTime) || 0,
-          },
-        ]}
+        workoutTitle={workoutTitle}
+        exercises={exercises.map((ex: any, i: number) => {
+          const l = logs[i];
+          return {
+            name: ex.name,
+            sets: parseInt(l.sets) || 0,
+            reps: parseInt(l.reps) || 0,
+            weight: parseFloat(l.weight) || 0,
+            restTime: parseInt(l.restTime) || 0,
+          };
+        })}
         onConfirm={confirmSave}
         onCancel={() => setSaveModalVisible(false)}
       />

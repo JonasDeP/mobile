@@ -18,8 +18,8 @@ const ExerciseDetailScreen: React.FC<Props> = ({ route, navigation }) => {
     <View style={{ flex: 1, backgroundColor: colors.background }}>
       <CustomHeader
         title={exercise.name}
-        leftIcon={<Text style={{ fontSize: 24, color: colors.white }}>←</Text>}
-        onLeftPress={() => navigation.goBack()}
+        showBack
+        onBack={() => navigation.goBack()}
       />
       <ScrollView contentContainerStyle={{ padding: spacing.lg }}>
         <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>

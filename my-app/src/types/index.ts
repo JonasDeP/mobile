@@ -16,7 +16,7 @@ export interface Exercise {
 }
 
 export interface Workout {
-  id: string;
+  id?: string;
   title: string;
   muscleGroup: string;
   duration: number;
@@ -25,7 +25,7 @@ export interface Workout {
 }
 
 export interface WorkoutHistoryEntry {
-  id: string;
+  id?: string;
   workoutId: string;
   workoutTitle: string;
   completedAt: string;
@@ -36,6 +36,17 @@ export interface WorkoutHistoryEntry {
     weight: number;
     restTime: number;
   }[];
+}
+
+export interface WeightEntry {
+  id?: string;
+  weight: number;
+  date: string; // ISO string
+}
+
+export interface GymVisit {
+  id?: string;
+  date: string; // ISO string (date only)
 }
 
 export interface FilterState {

@@ -5,20 +5,20 @@ import { spacing, typography } from '../constants/theme';
 
 interface Props {
   title: string;
-  leftIcon?: React.ReactNode;
+  showBack?: boolean;
+  onBack?: () => void;
   rightIcon?: React.ReactNode;
-  onLeftPress?: () => void;
   onRightPress?: () => void;
 }
 
-const CustomHeader: React.FC<Props> = ({ title, leftIcon, rightIcon, onLeftPress, onRightPress }) => {
+const CustomHeader: React.FC<Props> = ({ title, showBack, onBack, rightIcon, onRightPress }) => {
   const { colors } = useTheme();
   return (
     <View style={{ backgroundColor: colors.primary, flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', paddingHorizontal: spacing.md, paddingTop: spacing.lg + 20, paddingBottom: spacing.md }}>
       <View style={{ width: 40, alignItems: 'flex-start' }}>
-        {leftIcon && (
-          <TouchableOpacity onPress={onLeftPress} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
-            {leftIcon}
+        {showBack && (
+          <TouchableOpacity onPress={onBack} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>
+            <Text style={{ color: colors.white, fontSize: 20 }}>←</Text>
           </TouchableOpacity>
         )}
       </View>
