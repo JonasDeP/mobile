@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, ScrollView } from 'react-native';
+import { View, Text, ScrollView, Image } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import CustomHeader from '../components/CustomHeader';
 import Button from '../components/Button';
@@ -21,27 +21,30 @@ const ExerciseDetailScreen: React.FC<Props> = ({ route, navigation }) => {
         showBack
         onBack={() => navigation.goBack()}
       />
-      <ScrollView contentContainerStyle={{ padding: spacing.lg }}>
-        <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
-          <Text style={{ ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase' }}>Spiergroep</Text>
-          <Text style={{ ...typography.h3, color: colors.text }}>{exercise.muscleGroup}</Text>
+      <ScrollView contentContainerStyle={{ paddingBottom: spacing.lg }}>
+        <Image source={{ uri: exercise.imageUrl }} style={{ width: '100%', height: 220, backgroundColor: colors.border }} />
+        <View style={{ padding: spacing.lg }}>
+          <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
+            <Text style={{ ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase' }}>Spiergroep</Text>
+            <Text style={{ ...typography.h3, color: colors.text }}>{exercise.muscleGroup}</Text>
+          </View>
+          <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
+            <Text style={{ ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase' }}>Moeilijkheid</Text>
+            <Text style={{ ...typography.h3, color: colors.text }}>{exercise.difficulty}</Text>
+          </View>
+          <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
+            <Text style={{ ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase' }}>Beschrijving</Text>
+            <Text style={{ ...typography.body, color: colors.text, lineHeight: 22 }}>
+              Dit is een effectieve oefening voor het trainen van {exercise.muscleGroup.toLowerCase()}.
+              Zorg voor een goede vorm en controleer je bewegingen.
+            </Text>
+          </View>
+          <Button
+            title="Log Workout"
+            onPress={() => navigation.navigate('Log', { exercise })}
+            style={{ marginTop: spacing.lg }}
+          />
         </View>
-        <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
-          <Text style={{ ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase' }}>Moeilijkheid</Text>
-          <Text style={{ ...typography.h3, color: colors.text }}>{exercise.difficulty}</Text>
-        </View>
-        <View style={{ backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md, marginBottom: spacing.md }}>
-          <Text style={{ ...typography.caption, color: colors.textSecondary, marginBottom: spacing.xs, textTransform: 'uppercase' }}>Beschrijving</Text>
-          <Text style={{ ...typography.body, color: colors.text, lineHeight: 22 }}>
-            Dit is een effectieve oefening voor het trainen van {exercise.muscleGroup.toLowerCase()}.
-            Zorg voor een goede vorm en controleer je bewegingen.
-          </Text>
-        </View>
-        <Button
-          title="Log Workout"
-          onPress={() => navigation.navigate('Log', { exercise })}
-          style={{ marginTop: spacing.lg }}
-        />
       </ScrollView>
     </View>
   );

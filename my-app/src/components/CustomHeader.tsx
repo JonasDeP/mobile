@@ -22,7 +22,9 @@ const CustomHeader: React.FC<Props> = ({ title, showBack, onBack, rightIcon, onR
           </TouchableOpacity>
         )}
       </View>
-      <Text style={{ ...typography.h2, color: colors.white, flex: 1, textAlign: 'center' }}>{title}</Text>
+      <Text style={{ ...typography.h2, color: colors.white, flex: 1, textAlign: 'center' }}>
+        <Text style={{ fontSize: 16 }}>💪  </Text>{title}
+      </Text>
       <View style={{ width: 40, alignItems: 'flex-end' }}>
         {rightIcon && (
           <TouchableOpacity onPress={onRightPress} hitSlop={{ top: 10, bottom: 10, left: 10, right: 10 }}>

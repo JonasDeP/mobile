@@ -4,6 +4,14 @@ export interface User {
   displayName: string | null;
 }
 
+export interface ExerciseItem {
+  id: string;
+  name: string;
+  muscleGroup: string;
+  difficulty: string;
+  imageUrl: string;
+}
+
 export interface Exercise {
   id: string;
   name: string;

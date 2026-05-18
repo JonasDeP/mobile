@@ -31,8 +31,12 @@ const AuthNavigator: React.FC = () => {
   if (loading) {
     return (
       <View style={{ flex: 1, backgroundColor: colors.primary, justifyContent: 'center', alignItems: 'center' }}>
-        <Text style={{ fontSize: 28, fontWeight: '700', color: colors.white, marginBottom: 24 }}>Workout Tracker</Text>
-        <ActivityIndicator size="large" color={colors.white} style={{ marginTop: 16 }} />
+        <View style={{ alignItems: 'center', marginBottom: 8 }}>
+          <Text style={{ fontSize: 52, color: colors.white }}>💪</Text>
+        </View>
+        <Text style={{ fontSize: 26, fontWeight: '800', color: colors.white, letterSpacing: 1 }}>WORKOUT</Text>
+        <Text style={{ fontSize: 26, fontWeight: '300', color: colors.white, letterSpacing: 6, marginTop: -2 }}>TRACKER</Text>
+        <ActivityIndicator size="small" color={colors.white} style={{ marginTop: 32 }} />
       </View>
     );
   }

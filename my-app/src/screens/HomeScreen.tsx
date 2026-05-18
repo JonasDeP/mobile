@@ -46,7 +46,7 @@ const HomeScreen: React.FC = () => {
       />
       <FlatList
         data={workouts.filter((w) => w.id)}
-        keyExtractor={(item) => item.id}
+        keyExtractor={(item, index) => item.id || index.toString()}
         renderItem={({ item }) => (
           <WorkoutCard workout={item} onPress={() => navigation.navigate('TrainingTab', { screen: 'Log', params: { workout: item } })} />
         )}

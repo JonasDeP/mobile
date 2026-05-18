@@ -7,10 +7,12 @@ import HomeScreen from '../screens/HomeScreen';
 import TrainingStack from './TrainingStack';
 import StatsScreen from '../screens/StatsScreen';
 import ProfileScreen from '../screens/ProfileScreen';
+import ExerciseImagesScreen from '../screens/ExerciseImagesScreen';
 import CreateWorkoutScreen from '../screens/CreateWorkoutScreen';
 
 const Tab = createBottomTabNavigator();
 const HomeStack = createStackNavigator();
+const ProfileStack = createStackNavigator();
 
 const HomeStackNavigator: React.FC = () => {
   return (
@@ -18,6 +20,15 @@ const HomeStackNavigator: React.FC = () => {
       <HomeStack.Screen name="HomeMain" component={HomeScreen} />
       <HomeStack.Screen name="CreateWorkout" component={CreateWorkoutScreen} />
     </HomeStack.Navigator>
+  );
+};
+
+const ProfileStackNavigator: React.FC = () => {
+  return (
+    <ProfileStack.Navigator screenOptions={{ headerShown: false }}>
+      <ProfileStack.Screen name="ProfileMain" component={ProfileScreen} />
+      <ProfileStack.Screen name="ExerciseImages" component={ExerciseImagesScreen} />
+    </ProfileStack.Navigator>
   );
 };
 
@@ -62,7 +73,7 @@ const MainTabs: React.FC = () => {
       />
       <Tab.Screen
         name="Profile"
-        component={ProfileScreen}
+        component={ProfileStackNavigator}
         options={{
           tabBarLabel: 'Profiel',
           tabBarIcon: ({ color }) => <Text style={{ fontSize: 24, color }}>👤</Text>,

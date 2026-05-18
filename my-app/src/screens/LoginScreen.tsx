@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Text, Alert, KeyboardAvoidingView, Platform, ScrollView, Pressable } from 'react-native';
+import { Text, Alert, KeyboardAvoidingView, Platform, ScrollView, Pressable, View } from 'react-native';
 import { useTheme } from '../context/ThemeContext';
 import InputField from '../components/InputField';
 import Button from '../components/Button';
@@ -99,7 +99,10 @@ const LoginScreen: React.FC = () => {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', padding: spacing.lg }} keyboardShouldPersistTaps="handled">
-        <Text style={{ ...typography.h1, color: colors.primary, textAlign: 'center', marginBottom: spacing.sm }}>Workout Tracker</Text>
+        <View style={{ alignItems: 'center', marginBottom: spacing.lg }}>
+          <Text style={{ fontSize: 64 }}>💪</Text>
+          <Text style={{ ...typography.h1, color: colors.primary, textAlign: 'center', marginTop: spacing.xs }}>WORKOUT TRACKER</Text>
+        </View>
         <Text style={{ ...typography.body, color: colors.textSecondary, textAlign: 'center', marginBottom: spacing.xl }}>{isSignUp ? 'Maak een account aan' : 'Log in om te beginnen'}</Text>
 
         <InputField

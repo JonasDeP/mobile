@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, Switch, Alert } from 'react-native';
+import { View, Text, Switch, Alert, Pressable } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { useTheme } from '../context/ThemeContext';
 import CustomHeader from '../components/CustomHeader';
@@ -10,7 +10,7 @@ import { useAuth } from '../hooks/useAuth';
 import { RootState } from '../store';
 import { spacing, borderRadius, typography } from '../constants/theme';
 
-const ProfileScreen: React.FC = () => {
+const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { user } = useAuth();
   const { colors } = useTheme();
   const dispatch = useDispatch();
@@ -47,6 +47,14 @@ const ProfileScreen: React.FC = () => {
         </View>
 
         <Button title="Uitloggen" onPress={handleLogout} variant="secondary" style={{ marginTop: spacing.lg }} />
+
+        <Pressable
+          onPress={() => navigation.navigate('ExerciseImages')}
+          style={{ marginTop: spacing.lg, backgroundColor: colors.surface, borderRadius: borderRadius.lg, padding: spacing.md }}
+        >
+          <Text style={{ ...typography.body, color: colors.primary, fontWeight: '600' }}>Oefening afbeeldingen beheren</Text>
+          <Text style={{ ...typography.caption, color: colors.textSecondary, marginTop: spacing.xs }}>Stel eigen foto's in voor elke oefening</Text>
+        </Pressable>
       </View>
     </View>
   );

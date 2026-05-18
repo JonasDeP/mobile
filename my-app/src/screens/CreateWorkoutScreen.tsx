@@ -1,13 +1,13 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
-  View, Text, TextInput, ScrollView, TouchableOpacity, Alert, Modal, FlatList
+  View, Text, TextInput, ScrollView, TouchableOpacity, Alert, Modal, FlatList, ActivityIndicator
 } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import { useTheme } from '../context/ThemeContext';
 import { useAuth } from '../hooks/useAuth';
-import { saveWorkout } from '../services/firestore';
+import { saveWorkout, getExercises } from '../services/firestore';
 import CustomHeader from '../components/CustomHeader';
-import { EXERCISES, MUSCLE_GROUPS as MUSCLE_GROUP_OPTIONS } from '../data/exercises';
+import { ExerciseItem } from '../types';
 import { spacing, borderRadius, typography } from '../constants/theme';
 
 interface SelectedExercise {
@@ -27,10 +27,19 @@ const CreateWorkoutScreen: React.FC = () => {
   const [title, setTitle] = useState('');
   const [muscleGroup, setMuscleGroup] = useState('Borst');
   const [exercises, setExercises] = useState<SelectedExercise[]>([]);
+  const [availableExercises, setAvailableExercises] = useState<ExerciseItem[]>([]);
+  const [loading, setLoading] = useState(true);
   const [pickerVisible, setPickerVisible] = useState(false);
   const [search, setSearch] = useState('');
 
-  const filteredExercises = EXERCISES.filter(
+  useEffect(() => {
+    getExercises()
+      .then((data) => setAvailableExercises(data))
+      .catch(() => {})
+      .finally(() => setLoading(false));
+  }, []);
+
+  const filteredExercises = availableExercises.filter(
     (ex) => !exercises.find((s) => s.id === ex.id) &&
       (search === '' || ex.name.toLowerCase().includes(search.toLowerCase()))
   );
@@ -229,7 +238,11 @@ const CreateWorkoutScreen: React.FC = () => {
               )}
               ListEmptyComponent={
                 <View style={{ padding: spacing.xl, alignItems: 'center' }}>
-                  <Text style={{ color: colors.textSecondary }}>Geen oefeningen beschikbaar</Text>
+                  {loading ? (
+                    <ActivityIndicator color={colors.primary} />
+                  ) : (
+                    <Text style={{ color: colors.textSecondary }}>Geen oefeningen beschikbaar</Text>
+                  )}
                 </View>
               }
               style={{ maxHeight: 400 }}

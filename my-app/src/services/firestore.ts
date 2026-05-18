@@ -1,6 +1,6 @@
-import firebase from './firebase';
+import firebase from './firebase.ts';
 import 'firebase/compat/firestore';
-import { Workout, WorkoutHistoryEntry, WeightEntry, GymVisit } from '../types';
+import type { Workout, WorkoutHistoryEntry, WeightEntry, GymVisit, ExerciseItem } from '../types/index.ts';
 
 const db = firebase.firestore();
 
@@ -61,4 +61,25 @@ export const removeGymVisit = async (uid: string, visitId: string): Promise<void
 export const getGymVisits = async (uid: string): Promise<GymVisit[]> => {
   const snapshot = await db.collection('users').doc(uid).collection('visits').get();
   return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as GymVisit));
+};
+
+// Exercises collection: stored once globally under 'exercises' (no user doc)
+const exercisesRef = db.collection('exercises');
+
+export const getExercises = async (): Promise<ExerciseItem[]> => {
+  const snapshot = await exercisesRef.orderBy('name').get();
+  return snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() } as ExerciseItem));
+};
+
+export const seedExercises = async (exercises: Omit<ExerciseItem, 'id'>[]): Promise<void> => {
+  const batch = db.batch();
+  for (const ex of exercises) {
+    const ref = exercisesRef.doc();
+    batch.set(ref, ex);
+  }
+  await batch.commit();
+};
+
+export const updateExercise = async (exerciseId: string, data: Partial<ExerciseItem>): Promise<void> => {
+  await exercisesRef.doc(exerciseId).update(data);
 };
